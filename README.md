@@ -1,14 +1,26 @@
 # 作者的笔记
+
+```text
 http://www.lotdoc.cn/blog/topic/detail/6/
+```
 
 #作者的演示站
+
+```text
 http://flask.proae.cn/
+```
 
 #作者gitee
+
+```text
 https://gitee.com/qbiancheng
+```
 
 # 官方文档
+
+```text
 https://flask.palletsprojects.com/en/2.2.x/
+```
 
 # 容器方式启动mysql5.7
 ```bash
@@ -43,6 +55,7 @@ FLUSH PRIVILEGES;
 
 
 # 方式一：SQLAlchemy控制台操作数据库同步
+
 ```text
 $env:FLASK_APP = 'RealProject'
 $env:FLASK_ENV = 'development'
@@ -52,6 +65,7 @@ flask.exe shell
 ```
 
 # 方式二：Flask-Migration控制台操作数据库同步
+
 ```text
 $env:FLASK_APP = 'RealProject'
 $env:FLASK_ENV = 'development'
@@ -61,6 +75,7 @@ flask.exe db upgrade
 ```
 
 # 本项目前端依赖的第三方框架有：
+
 ```text
 buefy -- https://buefy.org/
 bulma -- https://bulma.io/
@@ -69,6 +84,7 @@ vue2 -- https://v2.cn.vuejs.org/v2/guide/
 
 
 # 问题
+
 ```text
 ## 级联删除的定义？作用？使用场景？ 其他的处理方式？
 ## 后端的视图如何与前端html进行交互的？
@@ -79,6 +95,7 @@ vue2 -- https://v2.cn.vuejs.org/v2/guide/
 
 
 # 实现过程中遇到的问题
+
 ```text
 ## Flask 表单form.validate_on_submit()总是false
 https://blog.csdn.net/six66667/article/details/85885583
