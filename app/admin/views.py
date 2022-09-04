@@ -15,8 +15,10 @@ from flask import (
 from flask_sqlalchemy import Pagination
 from app.auth.views.auth import login_required
 from app.blog.models import Category, Post, Tag
-from app.admin.forms import CategoryCreateForm, PostForm, TagForm
+from app.auth.models.auth import User
+from app.admin.forms import CategoryCreateForm, PostForm, TagForm, CreateUserForm
 from RealProject import db
+from werkzeug.security import check_password_hash, generate_password_hash
 
 bp = Blueprint('admin', __name__, url_prefix='/admin', template_folder='templates', static_folder='static')
 
@@ -157,8 +159,6 @@ def article_del(post_id):
         return redirect(url_for('admin.article'))
 
 
-
-
 @bp.route('/tag')
 @login_required
 def tag():
@@ -208,3 +208,89 @@ def tag_del(tag_id):
         db.session.commit()
         flash(f'{tag.name}删除成功')
         return redirect(url_for('admin.tag'))
+
+
+@bp.route('/user')
+@login_required
+def user():
+    # 查看用户列表
+    page = request.args.get('page', 1, type=int)
+    pagination = User.query.order_by(-User.add_date).paginate(page, per_page=10, error_out=False)
+    user_list = pagination.items
+    return render_template('admin/user.html', user_list=user_list, pagination=pagination)
+
+
+@bp.route('/user/add', methods=['GET', 'POST'])
+@login_required
+def user_add():
+    # 查看文章列表
+    # https://flask-wtf.readthedocs.io/en/1.0.x/form/#file-uploads
+    from .utils import upload_file_path
+    form = CreateUserForm()
+    if form.validate_on_submit():
+        f = form.avatar.data
+        avatar_path, filename = upload_file_path('avatar', f)
+        f.save(avatar_path)
+        user = User(
+            username=form.username.data,
+            password=generate_password_hash(form.password.data),
+            avatar=f'avatar/{filename}',
+            is_super_user=form.is_super_user.data,
+            is_active=form.is_active.data,
+            is_staff=form.is_staff.data
+        )
+        db.session.add(user)
+        db.session.commit()
+        return redirect(url_for('admin.user'))
+    return render_template('admin/user_form.html', form=form)
+
+
+@bp.route('/user/edit/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def user_edit(user_id):
+    # 修改用户信息
+    user = User.query.get(user_id)
+
+    from .utils import upload_file_path
+    form = CreateUserForm(
+        username=user.username,
+        password=user.password,
+        avatar=user.avatar,
+        is_super_user=user.is_super_user,
+        is_active=user.is_active,
+        is_staff=user.is_staff
+    )
+    form.password.default = f'{user.password}'
+
+    if form.validate_on_submit():
+        user.username = form.username.data
+        if not form.password.data:
+            user.password = user.password
+        else:
+            user.password = generate_password_hash(form.password.data)
+        f = form.avatar.data
+        if user.avatar == f:
+            user.avatar = user.avatar
+        else:
+            avatar_path, filename = upload_file_path('avatar', f)
+            f.save(avatar_path)
+            user.avatar = f'avatar/{filename}'
+        user.is_super_user = form.is_super_user.data
+        user.is_active = form.is_active.data
+        user.is_staff = form.is_staff.data
+        db.session.add(user)
+        db.session.commit()
+        return redirect(url_for('admin.user'))
+    return render_template('admin/user_form.html', form=form, user=user)
+
+
+@bp.route('/user/del/<int:user_id>', methods=['GET', 'POST'])
+@login_required
+def user_del(user_id):
+    # 删除标签
+    user = User.query.get(user_id)
+    if tag:
+        db.session.delete(user)
+        db.session.commit()
+        flash(f'{user.username}删除成功')
+        return redirect(url_for('admin.user'))

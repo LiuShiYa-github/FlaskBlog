@@ -80,6 +80,7 @@ flask.exe db upgrade
 buefy -- https://buefy.org/
 bulma -- https://bulma.io/
 vue2 -- https://v2.cn.vuejs.org/v2/guide/
+图标 -- https://materialdesignicons.com/
 ```
 
 

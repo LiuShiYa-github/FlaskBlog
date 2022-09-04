@@ -37,7 +37,10 @@
                         用户管理
                     </p>
                     <ul class="menu-list">
-                        <li><a>用户管理</a></li>
+                        <li><a class="{% if 'user' in request.path %}is-active{% endif %}"
+                                href="{{ url_for('admin.user') }}">用户管理</a></li>
+                    </ul>
+                    <ul class="menu-list">
                         <li><a>修改密码</a></li>
                     </ul>
                 </aside>
