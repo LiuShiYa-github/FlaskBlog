@@ -1,0 +1,73 @@
+{% extends 'admin/article.html' %}
+
+{% block button %}{% endblock button %}
+
+
+{% block table_content %}
+    <form action="" method="post" class="mt-4">
+        {{ form.csrf_token }}
+        <div class="field">
+            {{ form.title.label(class='label') }}
+            <div class="control">
+                {{ form.title(class='input', placeholder='标题') }}
+            </div>
+        </div>
+        <div class="field">
+            {{ form.desc.label(class='label') }}
+            <div class="control">
+                {{ form.desc(class='input', placeholder='描述') }}
+            </div>
+        </div>
+
+        <div class="field">
+            {{ form.category_id.label(class='label') }}
+            <div class="control">
+                <div class="select is-fullwidth">
+                    {{ form.category_id }}
+                </div>
+            </div>
+        </div>
+
+        <div class="field">
+            {{ form.content.label(class='label') }}
+            <div class="control">
+                {{ form.content(class='textarea', rows="10", placeholder='文章详情') }}
+            </div>
+        </div>
+
+        <div class="field">
+            {{ form.tags.label(class='label') }}
+            <div class="control">
+                <div class="select is-fullwidth is-multiple">
+                    {{ form.tags(size='5') }}
+                </div>
+            </div>
+        </div>
+
+        <div class="field is-horizontal">
+            {{ form.has_type.label(class='label') }}
+            <div class="field-body ml-4">
+                <div class="control">
+                    <label class="radio">
+                        <input type="radio" name="has_type" value="draft">
+                        草稿
+                    </label>
+                    <label class="radio">
+                        <input checked type="radio" name="has_type" value="show">
+                        发布
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="is-block">
+            <div class="box has-background-light is-shadowless level">
+                <button class=" is-danger button level-left">删除</button>
+                <div class="level-right">
+                    <a href="{{ url_for('admin.article') }}" class="button is-primary is-light mr-2">返回</a>
+                    <input type="submit" value="保存" class=" button is-success">
+                </div>
+            </div>
+        </div>
+
+    </form>
+{% endblock table_content %}    
