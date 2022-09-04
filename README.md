@@ -1,28 +1,27 @@
+# 资料
+
+```text
 # 作者的笔记
-
-```text
 http://www.lotdoc.cn/blog/topic/detail/6/
-```
 
-#作者的演示站
-
-```text
+# 作者的演示站
 http://flask.proae.cn/
-```
 
-#作者gitee
-
-```text
+# 作者gitee
 https://gitee.com/qbiancheng
-```
 
 # 官方文档
-
-```text
 https://flask.palletsprojects.com/en/2.2.x/
+
+# 本项目前端依赖的第三方框架有：
+buefy -- https://buefy.org/
+bulma -- https://bulma.io/
+vue2 -- https://v2.cn.vuejs.org/v2/guide/
+图标 -- https://materialdesignicons.com/
 ```
 
 # 容器方式启动mysql5.7
+
 ```bash
 # ①下载docker-compose
 curl -L https://github.com/docker/compose/releases/download/1.16.1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
@@ -73,16 +72,6 @@ flask.exe db init
 flask.exe db migrate
 flask.exe db upgrade
 ```
-
-# 本项目前端依赖的第三方框架有：
-
-```text
-buefy -- https://buefy.org/
-bulma -- https://bulma.io/
-vue2 -- https://v2.cn.vuejs.org/v2/guide/
-图标 -- https://materialdesignicons.com/
-```
-
 
 # 问题
 
