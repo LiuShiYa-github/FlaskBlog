@@ -23,6 +23,9 @@
         </div>
         <div class="field">
             {{ form.avatar.label(class='label') }}
+            {% if user %}
+            <img  class="is-rounded" width="96px" height="96px" src="/admin/static/{{ user.avatar }}" alt="{{ user.username }}">
+            {% endif %}
             <div class="control">
                 {{ form.avatar(class='input',  placeholder='头像') }}
                 <p class="help has-text-grey-light">

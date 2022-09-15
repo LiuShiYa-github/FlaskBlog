@@ -223,7 +223,7 @@ def user():
 @bp.route('/user/add', methods=['GET', 'POST'])
 @login_required
 def user_add():
-    # 查看文章列表
+    # 添加用户
     # https://flask-wtf.readthedocs.io/en/1.0.x/form/#file-uploads
     from .utils import upload_file_path
     form = CreateUserForm()
@@ -294,3 +294,26 @@ def user_del(user_id):
         db.session.commit()
         flash(f'{user.username}删除成功')
         return redirect(url_for('admin.user'))
+
+
+@bp.route('/upload', methods=['POST'])
+@login_required
+def upload():
+    # 上传图片
+    if request.method == 'POST':
+        f = request.files.get('upload')
+        file_size = len(f.read())
+        f.seek(0)  # reset cursor position to beginning of file
+
+        if file_size > 2048000:  # 限制上传大小为2M
+            return {
+                'code': 'err',
+                'message': '文件超过限制2048000字节',
+            }
+        from .utils import upload_file_path
+        upload_path, filename = upload_file_path('upload', f)
+        f.save(upload_path)
+        return {
+            'code': 'ok',
+            'url': f'/admin/static/upload/{filename}'
+        }

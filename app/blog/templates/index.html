@@ -25,19 +25,19 @@
                             </b-navbar-item>
                         </template>
                         <template #start>
-                            <b-navbar-item href="#">
-                                Home
+                            <b-navbar-item href="/"
+                                {% if request.path =='/' %}active {% endif %}>
+                                首页
                             </b-navbar-item>
-                            <b-navbar-item href="#">
-                                Documentation
+
+                            {% for cate in categorys %}
+                            <b-navbar-item
+                                {% if cate.id == cate_id %}class="has-text-primary"{% endif %}
+                                href="{{ url_for('blog.cates', cate_id=cate.id) }}">
+                                {{ cate.name }}
                             </b-navbar-item>
-                            <b-navbar-dropdown label="Info">
-                                <b-navbar-item href="#">
-                                    About
-                                </b-navbar-item>
-                                <b-navbar-item href="#">
-                                    Contact
-                                </b-navbar-item>
+                            {% endfor %}
+
                             </b-navbar-dropdown>
                         </template>
 
@@ -86,33 +86,28 @@
                     {% block box %}
                     <div class="columns is-multiline">
                         {% for post in posts %}
-                        <div class="column is-4-fullhd">
+                        <div class="column is-4-fullhd is-6-desk">
                             <div class="card">
                                 <div class="card-image">
-                                    <figure class="image is-4by3">
-                                        <img src="https://bulma.io/images/placeholders/1280x960.png"
-                                            alt="Placeholder image">
+                                    <figure class="image is-4by5">
+                                        <img src="{{ post.img }}" alt="Placeholder image">
                                     </figure>
                                 </div>
                                 <div class="card-content">
-                                    <div class="media">
-                                        <div class="media-content">
-                                            <p class="title is-4"><a href="">Flask博客实战 - 掌握增删改查</a> </p>
-                                        </div>
-                                    </div>
-
                                     <div class="content">
-                                        <p class=" has-text-grey is-size-7">
-                                            既然我们选择了使用ORM框架，那就必须熟练掌握其提供的增删改查方法，在正式编写视图事前，
-                                            本节内容我们先在shell环境中来了解和熟悉其增删改查的基础方法！
+                                        <p class="title is-4"><a
+                                                href="{{ url_for('blog.detail', cate_id=post.category.id, post_id=post.id) }}">{{ post.title}}</a> </p>
+                                        <p class="has-text-grey subtitle is-size-6">
+                                            {{ post.desc }}
                                         </p>
-                                        <time datetime="2016-1-1">11:09 PM - 1 Jan 2016</time>
+                                        <time class="has-text-grey" datetime="{{ post.add_date }}">{{ post.add_date }}</time>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         {% endfor %}
-                    </div>
+
+                </div>
                     <nav class="pagination" role="navigation" aria-label="pagination">
                         <a class="pagination-previous is-disabled" title="This is the first page">Previous</a>
                         <a class="pagination-next">Next page</a>
