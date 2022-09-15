@@ -24,7 +24,8 @@
                         博客分类
                     </p>
                     <ul class="menu-list">
-                        <li><a href="">分类管理</a></li>
+                        <li><a class="{% if 'category' in request.path %}is-active{% endif %}"
+                                href="{{ url_for('admin.category') }}">分类管理</a></li>
                     </ul>
                     <p class="menu-label">
                         文章管理
@@ -33,6 +34,10 @@
                         <li><a class="{% if 'article' in request.path %}is-active{% endif %}"
                                 href="{{ url_for('admin.article') }}">文章管理</a></li>
                     </ul>
+                    <ul class="menu-list">
+                        <li><a class="{% if 'tag' in request.path %}is-active{% endif %}"
+                                href="{{ url_for('admin.tag') }}">标签管理</a></li>
+                    </ul>
                     <p class="menu-label">
                         用户管理
                     </p>
@@ -40,9 +45,9 @@
                         <li><a class="{% if 'user' in request.path %}is-active{% endif %}"
                                 href="{{ url_for('admin.user') }}">用户管理</a></li>
                     </ul>
-                    <ul class="menu-list">
-                        <li><a>修改密码</a></li>
-                    </ul>
+<!--                    <ul class="menu-list">-->
+<!--                        <li><a>修改密码</a></li>-->
+<!--                    </ul>-->
                 </aside>
             </div>
         </div>

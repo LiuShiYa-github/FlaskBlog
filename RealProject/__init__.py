@@ -60,6 +60,18 @@ def create_app(test_config=None):
     from app.blog import models
     from app.auth.models import auth
 
-
+    # 全局上下文
+    app.context_processor(inject_category)
 
     return app
+
+
+def inject_category():
+    # 上下文处理器回调函数
+    """
+    context_processor上下文处理器在呈现模板之前运行，并且能够将新值注入模板上下文。上下文处理器是返回字典的函数。
+    然后，对于应用程序中的所有模板，此字典的键和值将与模板上下文合并：
+    """
+    from app.blog.models import Category
+    categorys = Category.query.limit(6).all()
+    return dict(categorys=categorys)

@@ -1,0 +1,43 @@
+{% extends 'cate_list.html' %}
+
+{% block title %}{{ date }}的文章归档 {% endblock title %}
+
+{% block hero %}{% endblock hero %}
+
+{% block breadcrumb %}
+    <nav class="breadcrumb is-small" aria-label="breadcrumbs">
+        <ul>
+            <li><a href="/">首页</a></li>
+            <li class="is-active"><a href="#" aria-current="page">{{ date }}的归档</a></li>
+        </ul>
+    </nav>
+{% endblock breadcrumb %}
+
+{% block pagination %}
+    <nav class="pagination is-small" role="navigation" aria-label="pagination">
+        {% if pagination.has_prev %}
+            <a href="{{ url_for('blog.archive', date=date ) }}?page={{ pagination.prev_num }}" class="pagination-previous" title="This is the first page">Previous</a>
+        {% endif %}
+        {% if pagination.has_next %}
+            <a href="{{ url_for('blog.archive', date=date) }}?page={{ pagination.next_num }}" class="pagination-next">Next page</a>
+        {% endif %}
+
+        <ul class="pagination-list">        
+            {% for page in pagination.iter_pages() %}
+                {% if page %} 
+                    {% if page != pagination.page %}
+                        <li>
+                            <a href="{{ url_for('blog.archive', date=date) }}?page={{ page }}" class="pagination-link" aria-label="Page 1" aria-current="page">{{ page }}</a>
+                        </li>
+                    {% else %}
+                        <li>
+                            <a class="pagination-link is-current" aria-label="Page 1" aria-current="page">{{ page }}</a>
+                        </li>
+                    {% endif %}
+                {% else %}
+                    <span class=pagination-ellipsis>&hellip;</span>
+                {% endif %}
+                {% endfor %}
+            </ul>
+        </nav>
+{% endblock pagination %}

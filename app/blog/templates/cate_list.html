@@ -64,8 +64,68 @@
         {% endblock pagination %}
         {% endblock cate_box %}
     </div>
+
     <div class="column">
-        asdas
+        <div class="box is-shadowless" style="border:solid 1px #eee ;">
+            <h1 class="is-size-6 icon-text">
+                <span class="icon"><i class="mdi mdi-search-web"></i></span>
+                搜索
+            </h1>
+                <div class=" dropdown-divider"></div>
+                    <form action="{{ url_for('blog.search') }}" method="get">
+                <div class="field has-addons">
+                <div class="control">
+                <input class="input" type="search" value="{{ words }}" name="words" placeholder="请输入关键字">
+                </div>
+                <div class="control">
+                <input type="submit" value="Search" class="button is-info">
+                </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="box is-shadowless" style="border:solid 1px #eee ;">
+            <h1 class="is-size-6 icon-text">
+                <span class="icon"><i class="mdi mdi-calendar-month-outline"></i></span>
+                    归档
+            </h1>
+        <div class=" dropdown-divider"></div>
+            <ul>
+                {% for date in dates %}
+                <li class="pl-2"><a href="{{ url_for('blog.archive', date=date) }}">{{ date }}</a></li>
+                <div class="dropdown-divider"></div>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="box is-shadowless" style="border:solid 1px #eee ;">
+            <h1 class="is-size-6 icon-text">
+                <span class="icon"><i class="mdi mdi-tag-multiple-outline"></i></span>
+                标签
+            </h1>
+        <div class=" dropdown-divider"></div>
+            {% for tag in tags %}
+                <div class="tags">
+                    <a class="tag {{ tag.style|random() }}" href="{{ url_for('blog.tags', tag_id=tag.id) }}">{{ tag.name }}</a>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="box is-shadowless" style="border:solid 1px #eee ;">
+            <h1 class="is-size-6 icon-text">
+                <span class="icon"><i class="mdi mdi-calendar-month-outline"></i></span>
+                最新文章
+            </h1>
+        <div class=" dropdown-divider"></div>
+            <ul>
+                {% for post in new_posts %}
+                <li class="pl-2">
+                    <span class=" has-text-grey-light">{{ loop.index }}.</span>
+                    <a href="{{ url_for('blog.detail', cate_id=post.category.id, post_id=post.id) }}">{{ post.title }}</a>
+                </li>
+                <div class="dropdown-divider"></div>
+                    {% endfor %}
+            </ul>
+        </div>
     </div>
 </div>
 {% endblock box %}
