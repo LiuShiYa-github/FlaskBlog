@@ -89,4 +89,6 @@ flask.exe db upgrade
 ```text
 ## Flask 表单form.validate_on_submit()总是false
 https://blog.csdn.net/six66667/article/details/85885583
+
+## 添加完标签，显示时有 <Tag Python>
 ```
