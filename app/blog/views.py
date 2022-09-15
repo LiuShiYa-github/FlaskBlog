@@ -61,7 +61,7 @@ def detail(cate_id, post_id):
     # 详情页
     cate = Category.query.get(cate_id)
     post = Post.query.get_or_404(post_id)
-    print("我在这里：{}".format(post.tags))
+    # print("我在这里：{}".format(post.tags))
 
     # 上一篇
     prev_post = Post.query.filter(Post.id < post_id).order_by(-Post.id).first()

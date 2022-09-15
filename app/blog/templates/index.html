@@ -47,8 +47,14 @@
                                 {% if g.user %}
                                 <div class=" buttons">
                                     <!-- 获取用户信心 -->
-                                    <a class="button is-primary">欢迎您 {{ g.user['username'] }}</a>
-                                    <a class="button is-success">个人中心</a>
+                                    {% if g.user.is_super_user %}
+                                        <a class="button is-success" href="{{ url_for('admin.index') }}">管理后台</a>
+                                    {% else %}
+                                        <a class="button is-success" href="{{ url_for('auth.userinfo') }}">个人中心</a>
+                                    {% endif %}
+
+<!--                                    <a class="button is-primary">欢迎您 {{ g.user['username'] }}</a>-->
+<!--                                    <a class="button is-success">个人中心</a>-->
                                     <!-- 显示推出按钮 -->
                                     <a class="button is-danger" href="{{ url_for('auth.logout') }}">退出</a>
                                 </div>

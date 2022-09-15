@@ -59,12 +59,24 @@ def register():
 
 @bp.before_app_request
 def load_logged_in_user():
-    # 每个请求之前都回去session中查看user_id来获取用户
+    # 每个请求之前都会去session中查看user_id来获取用户
+
+    # 注册用户即非管理员用户允许登录后查看的url
+    urls = ['/auth/']
+
     user_id = session.get('user_id')
     if user_id is None:
         g.user = None
     else:
         g.user = auth.User.query.get(int(user_id))
+
+        # 权限判断
+        if g.user.is_super_user and g.user.is_active:
+            g.user.has_perm = 1
+        elif not g.user.is_super_user and g.user.is_active and not g.user.is_staff and request.path in urls:
+            g.user.has_perm = 1
+        else:
+            g.user.has_perm = 0
 
 
 def login_required(view):
@@ -72,7 +84,21 @@ def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if g.user is None:
+            # 给登录url添加一个记录上次访问的url参数，并跳转
             redirect_to = f"{url_for('auth.login')}?redirect_to={request.path}"
             return redirect(redirect_to)
+        # 登录成功后对权限进行判断处理
+        if g.user.has_perm:
+            pass
+        else:
+            return '<h1>无权限查看！</h1>'
         return view(**kwargs)
+
     return wrapped_view
+
+
+@bp.route('/')
+@login_required
+def userinfo():
+    # 用户中心
+    return render_template('userinfo.html')
