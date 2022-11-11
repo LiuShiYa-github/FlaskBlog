@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %} 我的博客 - FlaskBlog {% endblock title %}
+
+{% block hero %}
+<div id="banner" style="display:none ;">
+    {{ banners }}
+</div>
+<template>
+    <b-carousel>
+        <b-carousel-item v-for="(carousel, i) in banners" :key="i">
+            <!-- <section :class="`hero is-medium is-${carousel.color}`">
+                <div class="hero-body has-text-centered">
+                    <h1 class="title">{$ carousel.text $}</h1>
+                </div>
+            </section> -->
+            <a :href="carousel.url">
+                <figure class="image is-3by1">
+                    <img :src="carousel.img" alt="">
+                </figure>
+            </a>
+        </b-carousel-item>
+    </b-carousel>
+</template>
+{% endblock hero %}
+    
+{% block pagination %}
+<nav class="pagination is-small" role="navigation" aria-label="pagination">
+    {% if pagination.has_prev %}
+    <a href="{{ url_for('admin.article') }}?page={{ pagination.prev_num }}" class="pagination-previous" title="This is the first page">Previous</a>
+    {% endif %}
+    {% if pagination.has_next %}
+    <a href="{{ url_for('admin.article') }}?page={{ pagination.next_num }}" class="pagination-next">Next page</a>
+    {% endif %}
+    
+    <ul class="pagination-list">        
+        {% for page in pagination.iter_pages() %}
+            {% if page %} 
+                {% if page != pagination.page %}
+                <li>
+                    <a href="{{ url_for('admin.article') }}?page={{ page }}" class="pagination-link" aria-label="Page 1" aria-current="page">{{ page }}</a>
+                </li>
+                {% else %}
+                <li>
+                    <a class="pagination-link is-current" aria-label="Page 1" aria-current="page">{{ page }}</a>
+                </li>
+                {% endif %}
+            {% else %}
+                <span class=pagination-ellipsis>&hellip;</span>
+            {% endif %}
+        {% endfor %}
+      
+    </ul>
+</nav>
+{% endblock pagination %}
+
+{% block vue_script %}
+<script>
+    app._data.carousels = [
+        { text: 'Slide 1', color: 'primary' },
+        { text: 'Slide 2', color: 'info' },
+        { text: 'Slide 3', color: 'success' },
+        { text: 'Slide 4', color: 'warning' },
+        { text: 'Slide 5', color: 'danger' }
+    ]
+    
+    app._data.banners = JSON.parse(document.querySelector('#banner').innerHTML)
+    // console.log(app._data.banners)
+</script>
+{% endblock vue_script %}

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}我的博客 -- Flask{% endblock title %}</title>
+    <link rel="stylesheet" href="{{ url_for('blog.static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('blog.static', filename='css/buefy.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('blog.static', filename='css/materialdesignicons.min.css') }}">
+    {% block extra_head_style %}{% endblock extra_head_style %}   
+</head>
+
+<body>
+    <div id="app" style="height:100%;">
+        <div class="container is-fluid1" style="height:100%; ">
+            <div class="is-block" style="height:100%;">
+                <!-- 导航 -->
+                {% block navbar %}     
+                <template>
+                    <b-navbar spaced shadow>
+                        <template #brand>
+                            <b-navbar-item>
+                                <img src="{{ url_for('blog.static', filename='img/logo.png') }}" alt="FlaskBlog">
+                            </b-navbar-item>
+                        </template>
+                        <template #start>
+                            <b-navbar-item href="/">
+                                首页
+                            </b-navbar-item>
+                            
+                            {% for cate in categorys %}
+                            <b-navbar-item 
+                                {% if cate.id == cate_id %} class="has-text-primary"{% endif %}
+                                href="{{ url_for('blog.cates', cate_id=cate.id) }}">
+                                {{ cate.name }}
+                            </b-navbar-item>
+                            {% endfor %}
+                                
+                        </template>
+
+                        <template #end>
+                            <b-navbar-item tag="div">
+                                <!-- 判断用户是否已登录 -->
+                                {% if g.user %}              
+                                <div class=" buttons">
+                                    <!-- 获取用户信心 -->
+                                    <a class="button is-primary">欢迎您 {{ g.user['username'] }}</a>
+                                    
+                                    {% if g.user.is_super_user %}
+                                        <a class="button is-success" href="{{ url_for('admin.index') }}">管理后台</a>
+                                    {% else %}
+                                        <a class="button is-success" href="{{ url_for('auth.userinfo') }}">个人中心</a>
+                                    {% endif %}
+                                    <!-- 显示推出按钮 -->
+                                    <a class="button is-danger" href="{{ url_for('auth.logout') }}">退出</a>
+                                </div>
+                                {% else %}
+                                <!-- 用户未登录，显示登录注册按钮 -->
+                                <div class="buttons">
+                                    <a class="button is-primary" href="{{ url_for('auth.register') }}">
+                                        <strong>Sign up</strong>
+                                    </a>
+                                    <a class="button is-light" href="{{ url_for('auth.login') }}">Log in</a>
+                                </div>
+                                {% endif %}
+                            </b-navbar-item>
+                        </template>
+                    </b-navbar>
+                </template>
+                {% endblock navbar %}
+                <!-- 导航 end -->
+
+                {% block hero %}
+                <section class="hero is-medium is-primary">
+                    <div class="hero-body">
+                        <p class="title">
+                            Large hero
+                        </p>
+                        <p class="subtitle">
+                            Large subtitle
+                        </p>
+                    </div>
+                </section>
+                {% endblock hero %}
+
+                {% block main %} 
+                <div class="box is-marginless is-shadowless is-radiusless">
+                    {% block box %}
+                    <div class="columns is-multiline">
+                        {% for post in posts %}
+                        <div class="column is-4-fullhd">
+                            <div class="card">
+                                <div class="card-image">
+                                    <figure class="image is-4by3">
+                                        <img src="{{ post.img }}"
+                                            alt="Placeholder image">
+                                    </figure>
+                                </div>
+                                <div class="card-content">
+                                    <div class="media">
+                                        <div class="media-content">
+                                            <p class="title is-4">
+                                                <a href="{{ url_for('blog.detail', cate_id=post.category.id, post_id=post.id) }}">
+                                                    {{ post.title }}
+                                                </a> 
+                                                </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="content">
+                                        <p class=" has-text-grey is-size-7"> 
+                                            {{ post.desc }}
+                                        </p>
+                                        <time datetime="{{ post.add_date }}">{{ post.add_date }}</time>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <nav class="pagination is-small" role="navigation" aria-label="pagination">
+                        {% if pagination.has_prev %}
+                        <a href="{{ url_for('admin.article') }}?page={{ pagination.prev_num }}" class="pagination-previous" title="This is the first page">Previous</a>
+                        {% endif %}
+                        {% if pagination.has_next %}
+                        <a href="{{ url_for('admin.article') }}?page={{ pagination.next_num }}" class="pagination-next">Next page</a>
+                        {% endif %}
+                    
+                        <ul class="pagination-list">        
+                            {% for page in pagination.iter_pages() %}
+                                {% if page %} 
+                                    {% if page != pagination.page %}
+                                    <li>
+                                        <a href="{{ url_for('admin.article') }}?page={{ page }}" class="pagination-link" aria-label="Page 1" aria-current="page">{{ page }}</a>
+                                    </li>
+                                    {% else %}
+                                    <li>
+                                        <a class="pagination-link is-current" aria-label="Page 1" aria-current="page">{{ page }}</a>
+                                    </li>
+                                    {% endif %}
+                                {% else %}
+                                    <span class=pagination-ellipsis>&hellip;</span>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </nav>
+                    {% endblock box %}
+                </div>
+                {% endblock main %}
+
+
+
+                {% block footer %}      
+                <div class="footer has-background-black-ter is-marginless">
+                    <div class="has-text-centered has-text-grey-light">
+                        © 2022 <a class="has-text-grey-light" href="http://www.lotdoc.cn/blog/topic/detail/6/">FlaskBlog博客实战</a> 版权所有 备案号：陕ICP备20005686号
+                    </div>
+                </div>
+                {% endblock footer %}
+            </div>
+
+        </div>
+    </div>
+    
+    <script src="{{ url_for('blog.static', filename='js/vue.js') }}"></script>
+    <script src="{{ url_for('blog.static', filename='js/buefy.min.js') }}"></script>
+    {% block extra_foot_script %}{% endblock extra_foot_script %}
+    <script>
+        var app = new Vue({
+            el: '#app',
+            delimiters: ['{$', '$}'],
+            data: {
+                file:{},
+                carousels:[],
+                banners: []
+            },
+            methods: {}
+        })
+    </script>
+    {% block vue_script %}{% endblock vue_script %}
+</body>
+
+</html>

@@ -1,0 +1,43 @@
+{% extends 'cate_list.html' %}
+
+{% block title %}
+    {{ post.title }}
+{% endblock title %}
+
+{% block breadcrumb %}
+    <nav class="breadcrumb is-small" aria-label="breadcrumbs">
+        <ul>
+            <li><a href="/">首页</a></li>
+            <li><a href="{{ url_for('blog.cates', cate_id=cate.id) }}">{{ cate.name }}</a></li>
+            <li class="is-active"><a href="#" aria-current="page">{{ post.title }}</a></li>
+        </ul>
+    </nav>
+{% endblock breadcrumb %}
+
+{% block cate_box %}
+<div class="pl-2">
+    <h1 class="is-size-3">
+        {{ post.title }}
+    </h1>
+    <p class="has-text-grey-light is-size-6 mt-1">
+        <span class="icon"><i class="mdi mdi-clipboard-text-clock-outline"></i></span>{{ post.add_date }}
+        <span class="icon"><i class="mdi mdi-shape-outline"></i></span>{{ post.category.name }}
+        <span class="icon"><i class="mdi mdi-tag-heart-outline"></i></span>{{ post.tags|join(',') }}
+    </p>
+    <div class="content has-text-grey mt-1">{{ post.content|safe }}</div>
+</div>
+
+<hr>
+<div class="level">
+    <div class="level-left">
+        {% if prev_post %}
+            上一篇：<a href="{{ url_for('blog.detail', cate_id=prev_post.category.id, post_id=prev_post.id) }}">{{ prev_post.title }}</a>
+        {% endif %}
+    </div>
+    <div class="level-right">
+        {% if next_post %}
+            下一篇：<a href="{{ url_for('blog.detail', cate_id=next_post.category.id, post_id=next_post.id) }}">{{ next_post.title }}</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock cate_box %}

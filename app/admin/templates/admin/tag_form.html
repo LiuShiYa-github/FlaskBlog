@@ -1,0 +1,25 @@
+{% extends 'admin/category.html' %}
+
+{% block button %}{% endblock button %}
+
+{% block table_content %}
+    <form action="" method="post" class="mt-4">
+        {{ form.csrf_token }}
+        <div class="field">
+            {{ form.name.label(class='label') }}
+            <div class="control">
+                {{ form.name(class='input', placeholder='标签名称') }}
+            </div>
+        </div>
+
+        <div class="is-block">
+            <div class="box has-background-light is-shadowless level">
+                <button class="is-danger button level-left">删除</button>
+                <div class="level-right">
+                    <a href="{{ url_for('admin.tag') }}" class="button is-primary is-light mr-2">返回</a>
+                    <input type="submit" value="保存" class=" button is-success">
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock table_content %}
