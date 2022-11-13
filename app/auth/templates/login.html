@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %} 登录页 {% endblock title %}
+
+{% block hero %}{% endblock hero %}
+
+{% block main %}
+<div class="box is-radiusless is-marginless" style="height: 80%;">
+    <div class="columns is-centered">
+        <div class="column is-5-fullhd">
+            {% block auth_form %}
+            <form action="" method="post" style="margin-top: 40%;" class="box">
+                <div class=" has-text-centered mb-3">
+                    <p class=" subtitle">登录</p>
+                    <h1 class="title">FlaskBlog</h1>
+                </div>
+
+                <!-- 消息闪现 -->
+                {% with messages = get_flashed_messages() %}
+                <b-message type="is-danger">
+                  {% if messages %}
+                    <ul class=flashes>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+                </b-message>
+                {% endwith %}
+
+                <div class="field">
+                    <p class="control has-icons-left has-icons-right">
+                      <input class="input" type="text" name="username" id="id_username" maxlength="128" placeholder="Username">
+                      <span class="icon is-small is-left">
+                        <i class="fas fa-envelope"></i>
+                      </span>
+                      <span class="icon is-small is-right">
+                        <i class="fas fa-check"></i>
+                      </span>
+                    </p>
+                  </div>
+                  <div class="field">
+                    <p class="control has-icons-left">
+                      <input class="input" type="password" name="password" id="id_password" maxlength="320" minlength="6" placeholder="Password">
+                      <span class="icon is-small is-left">
+                        <i class="fas fa-lock"></i>
+                      </span>
+                    </p>
+                  </div>
+                  <div class="field">
+                    <p class="control">
+                      <input class="button is-success is-fullwidth" type="submit" value="Login">
+                    </p>
+                </div>
+            </form>
+            {% endblock auth_form %}
+        </div>
+
+    </div>
+
+</div>
+{% endblock main %}
