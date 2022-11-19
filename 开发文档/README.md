@@ -202,7 +202,7 @@ from .views import bp
 
 ```text
     # 引入blog的视图文件
-    from app.blog import views as blog
+    from app.blog.views import blog
     app.register_blueprint(blog.bp)
 ```
 做完以上两步之后运行项目
@@ -383,7 +383,7 @@ def create_app(test_config=None):
     from app.blog import views as blog
     app.register_blueprint(blog.bp)
     # 注册数据库模型
-    from app.blog import models
+    from app.blog.models import blog
     
     return app
     
@@ -500,10 +500,7 @@ def create_app(test_config=None):
     # 注册模型
     from app.blog import models
     # from app.auth import models
-    return app
-
-
-def register_bp(app: Flask):
+    
     # 注册视图方法
     from app.blog import views as blog
     # 注册蓝图
@@ -511,6 +508,9 @@ def register_bp(app: Flask):
 
     # 首页url
     app.add_url_rule(rule='/', endpoint='index', view_func=blog.index)
+    return app
+
+
 ```
 ## 使用Flask-Migrate
 在上一节最后我们说过，需要导出项目的环境变量，才能使用flask的命令，因此在执行以下操作之前，记得先导出环境变量哦！
@@ -625,22 +625,27 @@ class Category(BaseModel):
 ```
 注意，db.relationship()函数用来创建关系，这是一个隐式字段，不会出现在数据库，但可以使用orm的查询语法查到所有关联的数据，外键字段还必须使用外键类来单独声明！
 
-4、创建文章模型Post
+
+4、创建文章标签模型
 ```text
-class Category(BaseModel):
-    """分类模型
+class Tag(BaseModel):
+    """ 文章标签
     """
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128), nullable=False)
-    icon = db.Column(db.String(128), nullable=True)
-
-    # post = db.relationship('Post', backref='category', lazy=True)
-    post = db.relationship('Post', back_populates="category", cascade="all, delete", passive_deletes=True, )
+    name = db.Column(db.String(128), nullable=False, unique=True)
 
     def __repr__(self):
-        return '<Category %r>' % self.name
+        return self.name
 
+class PostPublishType(IntEnum):
+    """ 文章发布类型
+    """
+    draft = 1  # 草稿
+    show = 2  # 发布
+```
 
+5、创建文章模型Post
+```text
 # 多对多关系帮助器表
 tags = db.Table('tags',
                 db.Column('tag_id', db.Integer, db.ForeignKey('tag.id'), primary_key=True),
@@ -669,18 +674,8 @@ class Post(BaseModel):
 category_id字段的创建，它使用了db.ForeignKey()类实例化来创建了这个外键字段，这个会出现在数据库！这就是创建一对多关系字段的方法！
 tags多对多关系则根据官方文档的建议是需要额外定义用于该关系的帮助器表，不建议使用模型，而是使用实际表！至于更详细的一些用法，我们可以参考其官方文档说明！
 * 官方文档：https://flask-sqlalchemy.palletsprojects.com/en/2.x/
-5、创建文章标签模型
-```text
-class Tag(BaseModel):
-    """ 文章标签
-    """
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128), nullable=False, unique=True)
 
-    def __repr__(self):
-        return self.name
 
-```
 创建完以上模型之后，就可以执行迁移命令，注意，别忘记设置环境变量！
 
 ## 操作数据库
@@ -841,12 +836,13 @@ Flask 会自动为你配置 Jinja2 模板引擎。
 ```text
 from flask import Blueprint, render_template
 
-bp = Blueprint('blog', __name__, url_prefix='/blog', template_folder='templates', static_folder='static')
+bp = Blueprint('blog', __name__, url_prefix='/blog', template_folder='../templates', static_folder='../static')
+
 
 def index():
     """首页视图
     """
-    posts = [1,2,3,4,5,6]
+    posts = [1, 2, 3, 4, 5, 6]
     return render_template('index.html', posts=posts)
 
 ```
@@ -862,9 +858,7 @@ def create_app(test_config=None):
 
     # 省略中间代码
     ...
-    return app
-
-def register_bp(app:Flask):
+    
     # 注册视图方法
     from app.blog import views as blog
     # 注册蓝图
@@ -872,6 +866,8 @@ def register_bp(app:Flask):
 
     # 首页url
     app.add_url_rule(rule='/', endpoint='index', view_func=blog.index)
+    return app
+
 ```
 add_url_rule的参数解析：
 * rule参数是真正的url，url开头必须以斜杠开始；
@@ -1171,9 +1167,6 @@ def create_app(test_config=None):
     migrate.init_app(app, db)
     #login_manager.init_app(app)
 
-    # 注册视图
-    register_bp(app)
-
     # 注册模型
     from app.blog import models
     from app.auth import models 
@@ -1224,7 +1217,7 @@ def register():
 ## 实现用户的登录功能
 首先，我们需要完善登录的html页面, 路径为：app/auth/templates/login.html
 ```text
-{% extends 'base.html' %}
+{% extends 'index.html' %}
 
 {% block title %} 登录页 {% endblock title %}
 
@@ -1302,6 +1295,8 @@ def register():
 ```text
 from flask import render_template, Blueprint, redirect, url_for, request, session, check_password_hash, flash
 from ..models import auth
+from werkzeug.security import check_password_hash
+
     省略部分代码>..
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -1428,6 +1423,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 ```
 注册功能的后端逻辑视图, 路径为：app/auth/views/auth.py
 ```text
+from RealProject import db
+
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
     # 注册视图
@@ -1475,7 +1472,7 @@ def load_logged_in_user():
         g.user = auth.User.query.get(int(user_id))
 ```
 bp.before_app_request()注册一个在视图函数之前运行的函数，无论请求什么 URL。 都会先检查用户 ID 是否存储在会话中，并从数据库获取该用户的数据，将其存储在 g.user 上，该数据在请求期间持续。
-注册完这个函数之后，我们就可以在base.html中的导航的最右侧通过g.user的返回值，判断用户是否已经登录，显示不同的信息！
+注册完这个函数之后，我们就可以在index.html中的导航的最右侧通过g.user的返回值，判断用户是否已经登录，显示不同的信息！
 
 ```text
 <!-- 导航 -->
@@ -1501,7 +1498,7 @@ bp.before_app_request()注册一个在视图函数之前运行的函数，无论
                 <!-- 判断用户是否已登录 -->
                 {% if g.user %}              
                 <div class=" buttons">
-                    <!-- 获取用户信心 -->
+                    <!-- 获取用户信息 -->
                     <a class="button is-primary">欢迎您 {{ g.user['username'] }}</a>
                     <a class="button is-success">个人中心</a>
                     <!-- 显示推出按钮 -->
@@ -1605,17 +1602,29 @@ def register():
 def logout():
     # 注销
     session.clear()
-    return redirect(url_for('index'))
+    return redirect(url_for('auth.login'))
 
 
 @bp.before_app_request
 def load_logged_in_user():
-    # 每个请求之前都回去session中查看user_id来获取用户
+    # 每个请求之前都会去session中查看user_id来获取用户
+
+    # 注册用户即非管理员用户允许登录后查看的url
+    urls = ['/auth/']
+
     user_id = session.get('user_id')
     if user_id is None:
         g.user = None
     else:
         g.user = auth.User.query.get(int(user_id))
+
+        # 权限判断
+        if g.user.is_super_user and g.user.is_active:
+            g.user.has_perm = 1
+        elif not g.user.is_super_user and g.user.is_active and not g.user.is_staff and request.path in urls:
+            g.user.has_perm = 1
+        else:
+            g.user.has_perm = 0
 
 
 def login_required(view):
@@ -1623,7 +1632,14 @@ def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if g.user is None:
-            return redirect(url_for('auth.login'))
+            # 给登录url添加一个记录上次访问的url参数，并跳转
+            redirect_to = f"{url_for('auth.login')}?redirect_to={request.path}"
+            return redirect(redirect_to)
+        # 登录成功后对权限进行判断处理
+        if g.user.has_perm:
+            pass
+        else:
+            return '<h1>无权限查看！</h1>'
         return view(**kwargs)
 
     return wrapped_view
@@ -1647,19 +1663,20 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired, Length, ValidationError, EqualTo
 from werkzeug.security import check_password_hash
-from .models import User
+from .models.auth import User
+
 
 class LoginForm(FlaskForm):
-    # 登录表单
+    # 登陆表单
 
     def qs_username(username):
         # 对该字段进行在传递之前处理
-        u = f'{username}123456'
+        u = f'{username}'
         print(u)
         return username
 
     username = StringField('username', validators=[
-        DataRequired(message="不能为空"), 
+        DataRequired(message="不能为空"),
         Length(max=32, message="不符合字数要求！")
         ], filters=(qs_username,))
     password = PasswordField('password', validators=[
@@ -1673,21 +1690,22 @@ class LoginForm(FlaskForm):
             error = '该用户不存在！'
             raise ValidationError(error)
         elif not check_password_hash(user.password, form.password.data):
-            raise ValidationError('密码不正确')
+            raise ValidationError('密码不正确!')
+
 ```
 代码详解：
-class LoginForm(FlaskForm): 创建了一个登录表单类，继承了FlaskForm类
-StringField, PasswordField
-这些都是wtforms内置的字段，负责呈现和数据转换。
-官方文档：https://wtforms.readthedocs.io/en/3.0.x/fields/
-他继承自Filed的基类，其中有一些比较重要的参数我们大概在这里理解一下！
-第一个字符串其实是该类的label参数，字段的标签，也就是转换到html中的label!
-validators传入对该字段的一些验证器，在提交数据之前对数据进行验证！
-filters这个参数比较特殊，官方文档并没有对其详细说明，只说是筛选器，其实怎么说就是在额外的方法中对该字段的值提前处理过滤，元组中的每个值都是一个回调函数，函数不需要传入括号，但这个回调函数默认有一个参数，这个参数就是本身该字段的值，所以在定义该函数时就必须传入一个参数！例如：我们定义username之前定义的这个方法！
+* class LoginForm(FlaskForm): 创建了一个登录表单类，继承了FlaskForm类
+* StringField, PasswordField
+* 这些都是wtforms内置的字段，负责呈现和数据转换。
+* 官方文档：https://wtforms.readthedocs.io/en/3.0.x/fields/
+* 他继承自Filed的基类，其中有一些比较重要的参数我们大概在这里理解一下！
+* 第一个字符串其实是该类的label参数，字段的标签，也就是转换到html中的label!
+* validators传入对该字段的一些验证器，在提交数据之前对数据进行验证！
+* filters这个参数比较特殊，官方文档并没有对其详细说明，只说是筛选器，其实怎么说就是在额外的方法中对该字段的值提前处理过滤，元组中的每个值都是一个回调函数，函数不需要传入括号，但这个回调函数默认有一个参数，这个参数就是本身该字段的值，所以在定义该函数时就必须传入一个参数！例如：我们定义username之前定义的这个方法！
 ```text
 def qs_username(username):
     # 对该字段进行在传递之前处理
-    u = f'{username}123456'
+    u = f'{username}'
     print(u)
     return username
 ```
@@ -1716,7 +1734,7 @@ def validate_username(form, field):
 class RegisterForm(FlaskForm):
     # 注册表单
     username = StringField('username', validators=[
-        DataRequired(message="不能为空"), 
+        DataRequired(message="不能为空"),
         Length(min=2, max=32, message="超过限制字数！")
         ])
     password = PasswordField('password', validators=[
@@ -1742,12 +1760,14 @@ from ..forms import LoginForm, RegisterForm
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
     # 登录视图
-    # form = LoginForm(meta={'csrf': False}) # 禁用csrf
+    redirect_to = request.args.get('redirect_to')
     form = LoginForm()
     if form.validate_on_submit():
         user = auth.User.query.filter_by(username=form.username.data).first()
         session.clear()
         session['user_id'] = user.id
+        if redirect_to is not None:
+            return redirect(redirect_to)
         return redirect(url_for('index'))
     return render_template('login.html', form=form)
 
@@ -1771,7 +1791,8 @@ def register():
 4、 数据验证通过则进入之后的逻辑，未验证通过则返回我们在表单类中传入的验证提示！
 
 ## 模板中调用验证信息
-我们以调用username字段的验证提示为例，在模板中加入这段代码即可获得错误提示!
+
+我们以调用username字段的验证提示为例，在模板中加入这段代码即可获得错误提示!（修改login.html文件）
 ```text
 <!-- 表单验证 -->
 {% if form.username.errors %}
@@ -1787,7 +1808,9 @@ def register():
 ## 重构登录注册html模板
 路径：app/auth/templates/login.html 以登陆表单为例，代码如下：
 ```text
-{% extends 'base.html' %}
+{% extends 'index.html' %}
+
+{% block title %} 登录页 {% endblock title %}
 
 {% block hero %}{% endblock hero %}
 
@@ -1863,6 +1886,89 @@ def register():
 剩下的注册表单，就当是给大家留作的一个作业，大家自行去参照登录表单完善重构一下，加油哦！我相信你可以！
 到这里我们的表单验证就大概了解了，之后的章节就是基本的增删改查以及表单验证，都是基于我们这些章节学习的知识点，所以之后的章节就不会过多的去讲解每行代码的意思，重心放在逻辑的展示上，如果基础较差的同学，到这里，可以去反复的把前边所有章节的内容去练习，写代码其实就是写的多了就会了，也就理解了，练习 练习 再练习
 
+路径：app/auth/templates/register.html 以登陆表单为例，代码如下：
+```text
+{% extends 'login.html' %}
+
+{% block title %}注册{% endblock title %}
+
+{% block auth_form %}
+<form action="" method="post" style="margin-top: 40%;" class="box">
+    <div class=" has-text-centered mb-3">
+        <p class=" subtitle">注册</p>
+        <h1 class="title">FlaskBlog</h1>
+    </div>
+     <!-- 消息闪现 -->
+     {% with messages = get_flashed_messages() %}
+     <b-message type="is-danger">
+       {% if messages %}
+         <ul class=flashes>
+         {% for message in messages %}
+             <li>{{ message }}</li>
+         {% endfor %}
+         </ul>
+     {% endif %}
+     </b-message>
+     {% endwith %}
+
+      <!-- 表单验证 -->
+      {% if form.username.errors %}
+      <b-message type="is-danger">
+        <ul class="errors">
+          {% for error in form.username.errors %}
+          <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </b-message>
+      {% endif %}
+
+    {{ form.csrf_token }}
+    <div class="field">
+        <p class="control has-icons-left has-icons-right">
+            {{ form.username(class='input', placeholder='Username') }}
+            <span class="icon is-small is-left">
+                <i class="fas fa-envelope"></i>
+            </span>
+            <span class="icon is-small is-right">
+                <i class="fas fa-check"></i>
+            </span>
+        </p>
+    </div>
+    <div class="field">
+        <p class="control has-icons-left">
+            {{ form.password(class='input', placeholder='Password') }}
+            <span class="icon is-small is-left">
+                <i class="fas fa-lock"></i>
+            </span>
+        </p>
+    </div>
+    <div class="field">
+        <p class="control has-icons-left">
+            {{ form.password1(class='input', placeholder='Password1') }}
+            <span class="icon is-small is-left">
+                <i class="fas fa-lock"></i>
+            </span>
+        </p>
+    </div>
+    <div class="field">
+        <p class="control">
+            <input class="button is-success is-fullwidth" type="submit" value="Register">
+        </p>
+    </div>
+</form>
+{% endblock auth_form %}
+```
+## 将auth注册到工厂函数中
+```text
+    # 注册视图方法
+    from app.blog.views import blog as blog
+    from app.auth.views import auth as auth
+    # 注册蓝图
+    app.register_blueprint(auth.bp)
+    app.register_blueprint(blog.bp)
+```
+# 到这里结束
+
 # 创建后台管理应用
 Flask与django最大的不同就在这里，django的理念是快速开发，所以他尽可能多的帮我们集成了所有web的功能，包括了一个强大的admin后台管理系统！
 而Flask倡导的是自由度，因此无论大小的系统，只要牵扯到数据管理的增删改查的地方都要我们手动去实现，当然Flask也有对应的第三方扩展，但本教程更多的是让大家熟悉Flask，而不是学习扩展，所以我们不回去用第三方扩展来实现这里的功能！
@@ -1873,40 +1979,42 @@ app/
     admin/
         __init__.py
         forms.py
-        models.py
-        views.py
-        templates/admin/
+        models/
+        views/
+        templates/
         static/
 ```
 # 创建各功能视图
 ## 创建admin主页视图
-在app/admin/views.py中创建如下代码
+在app/admin/views/admin.py中创建如下代码
 ```text
 from ctypes import pointer
 from flask import (
-    Blueprint, render_template, request, 
+    Blueprint, render_template, request,
     flash, redirect, url_for
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from RealProject import db
 from app.auth.views.auth import login_required
-from app.blog.models import Category, Post, Tag
-from app.auth.models import User
-from .models import Banner
-from .forms import CategoryForm, PostForm, TagForm, CreateUserForm
+
+# from app.blog.models import Category, Post, Tag
+# from app.auth.models import User
+# from .models import Banner
+# from .forms import CategoryForm, PostForm, TagForm, CreateUserForm
 
 
-bp = Blueprint('admin', __name__, url_prefix='/admin', 
-    template_folder='templates', static_folder='static')
+bp = Blueprint('admin', __name__, url_prefix='/admin',
+               template_folder='../templates', static_folder='../static')
 
 
 @bp.route('/')
 @login_required
 def index():
     # 主页视图
-    return render_template('admin/index.html')
+    return render_template('index.html')
+
 ```
-在app/admin/templates/admin/目录下创建index.html
+在app/admin/templates/目录下创建index.html
 ```text
 {% extends 'base.html' %}
 
@@ -1995,6 +2103,162 @@ def index():
 </div>
 {% endblock box %}
 ```
+因为index.html引用了blog下的base.html，所以base.html也需要修改下：
+```text
+<!DOCTYPE html>
+<html lang="cn">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock title %}</title>
+    <link rel="stylesheet" href="{{ url_for('blog.static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('blog.static', filename='css/buefy.min.css') }}">
+    {% block extra_head_style %}{% endblock extra_head_style %}
+</head>
+
+<body>
+    <div id="app" style="height:100%;">
+        <div class="container is-fluid1" style="height:100%; ">
+            <div class="is-block" style="height:100%;">
+                <!-- 导航 -->
+                {% block navbar %}
+                <template>
+                    <b-navbar spaced shadow>
+                        <template>
+                            <b-navbar-item>
+                                <img src="{{ url_for('blog.static', filename='img/logo.png') }}" alt="FlaskBlog">
+                            </b-navbar-item>
+                        </template>
+                        <template #start>
+                            <b-navbar-item href="#">
+                                Home
+                            </b-navbar-item>
+                            <b-navbar-item href="#">
+                                Documentation
+                            </b-navbar-item>
+                            <b-navbar-dropdown label="Info">
+                                <b-navbar-item href="#">
+                                    About
+                                </b-navbar-item>
+                                <b-navbar-item href="#">
+                                    Contact
+                                </b-navbar-item>
+                            </b-navbar-dropdown>
+                        </template>
+
+                        <template #end>
+                            <b-navbar-item tag="div">
+                                <div class="buttons">
+                                    <a class="button is-primary">
+                                        <strong>Sign up</strong>
+                                    </a>
+                                    <a class="button is-light">
+                                        Log in
+                                    </a>
+                                </div>
+                            </b-navbar-item>
+                        </template>
+                    </b-navbar>
+                </template>
+                {% endblock navbar %}
+                <!-- 导航 end -->
+
+                {% block hero %}
+                <section class="hero is-medium is-primary">
+                    <div class="hero-body">
+                        <p class="title">
+                            Large hero
+                        </p>
+                        <p class="subtitle">
+                            Large subtitle
+                        </p>
+                    </div>
+                </section>
+                {% endblock hero %}
+
+                {% block main %}
+                <div class="box is-marginless is-shadowless is-radiusless">
+                    {% block box %}
+                    <div class="columns is-multiline">
+                        {% for post in posts %}
+                        <div class="column is-4-fullhd">
+                            <div class="card">
+                                <div class="card-image">
+                                    <figure class="image is-4by3">
+                                        <img src="https://bulma.io/images/placeholders/1280x960.png"
+                                            alt="Placeholder image">
+                                    </figure>
+                                </div>
+                                <div class="card-content">
+                                    <div class="media">
+                                        <div class="media-content">
+                                            <p class="title is-4"><a href="">Flask博客实战 - 掌握增删改查</a> </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="content">
+                                        <p class=" has-text-grey is-size-7">
+                                            既然我们选择了使用ORM框架，那就必须熟练掌握其提供的增删改查方法，在正式编写视图事前，
+                                            本节内容我们先在shell环境中来了解和熟悉其增删改查的基础方法！
+                                        </p>
+                                        <time datetime="2016-1-1">11:09 PM - 1 Jan 2016</time>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <nav class="pagination" role="navigation" aria-label="pagination">
+                        <a class="pagination-previous is-disabled" title="This is the first page">Previous</a>
+                        <a class="pagination-next">Next page</a>
+                        <ul class="pagination-list">
+                          <li>
+                            <a class="pagination-link is-current" aria-label="Page 1" aria-current="page">1</a>
+                          </li>
+                          <li>
+                            <a class="pagination-link" aria-label="Goto page 2">2</a>
+                          </li>
+                          <li>
+                            <a class="pagination-link" aria-label="Goto page 3">3</a>
+                          </li>
+                        </ul>
+                    </nav>
+                    {% endblock box %}
+                </div>
+                {% endblock main %}
+
+
+
+                {% block footer %}
+                <div class="footer has-background-black-ter is-marginless">
+                    <div class="has-text-centered has-text-grey-light">
+                        © 2022 <a class="has-text-grey-light" href="http://www.lotdoc.cn/blog/topic/detail/6/">FlaskBlog博客实战</a> 版权所有 备案号：陕ICP备20005686号
+                    </div>
+                </div>
+                {% endblock footer %}
+            </div>
+
+        </div>
+    </div>
+
+    <script src="{{ url_for('blog.static', filename='js/vue.js') }}"></script>
+    <script src="{{ url_for('blog.static', filename='js/buefy.min.js') }}"></script>
+    {% block extra_foot_script %}{% endblock extra_foot_script %}
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {},
+            methods: {}
+        })
+    </script>
+    {% block vue_script %}{% endblock vue_script %}
+</body>
+
+</html>
+```
+
 最后，别忘了在项目目录RealProject/init.py中注册该管理后台的蓝图
 ```text
 def register_bp(app: Flask):
@@ -2178,6 +2442,13 @@ category_list = pagination.items 获取分页后的数据！
 ## 实现添加博客内容
 在app/admin/forms.py中创建Post的表单类
 ```text
+from flask_wtf import FlaskForm
+from wtforms import StringField, RadioField, SelectField, TextAreaField, SelectMultipleField
+from wtforms.validators import DataRequired, Length
+
+from app.blog.models.blog import PostPublishType
+
+
 class PostForm(FlaskForm):
     # 添加文章表单
     title = StringField('标题', validators=[
@@ -2255,7 +2526,7 @@ form.tags.choices = [(v.id,v.name) for v in Tag.query.all()]
 在app/admin/templates/admin/目录下创建一个article_form.html
 
 ```text
-{% extends 'admin/article.html' %}
+{% extends 'article.html' %}
 
 {% block button %}{% endblock button %}
 
@@ -2330,7 +2601,7 @@ form.tags.choices = [(v.id,v.name) for v in Tag.query.all()]
 {% endblock table_content %} 
 ```
 最后修改添加分类按钮的url即可：
-路径：app/admin/templates/admin/article.html
+路径：app/admin/templates/article.html
 ```text
 {% block button %}
     <div class="is-pulled-right">
@@ -2397,7 +2668,7 @@ def article_del(post_id):
         flash(f'{post.title}文章删除成功')
         return redirect(url_for('admin.article'))
 ```
-最后，在删除按钮上增加该url即可
+最后，在article.html中删除按钮上增加该url即可
 ```text
 <a href="{{ url_for('admin.article_del', post_id=post.id) }}" class="tag is-danger is-light">
     <span class="icon">
@@ -2454,7 +2725,7 @@ class CreateUserForm(FlaskForm):
 @bp.route('/user/add', methods=['GET', 'POST'])
 @login_required
 def user_add():
-    # 查看文章列表
+    # 添加用户
     # https://flask-wtf.readthedocs.io/en/1.0.x/form/#file-uploads
     from .utils import upload_file_path
     form = CreateUserForm()
@@ -2885,7 +3156,7 @@ def create_app(test_config=None):
         </template>
         <template #start>
             <b-navbar-item href="/" 
-                {% if request.path == '/' %}active {% endif %}>
+                {% if request.path =='/' %}active {% endif %}>
                 首页
             </b-navbar-item>
 
@@ -2910,7 +3181,7 @@ def index():
     """首页视图
     """
     page = request.args.get('page', 1, type=int)
-    pagination = Post.query.order_by(-Post.add_date).paginate(page, per_page=9, error_out=False)
+    pagination = Post.query.order_by(-Post.add_date).paginate(page=page, per_page=9, error_out=False)
     post_list = pagination.items
 
     import random
@@ -3043,7 +3314,7 @@ def cates(cate_id):
 </div>
 {% endblock box %}
 ```
-该模板中我们查询出了刚才视图中返回的数据，并继承base.html实现了一个一本的样式！
+该模板中我们查询出了刚才视图中返回的数据，并继承base.html实现了一个一样的样式！
 
 * 最终样式 
 ![img_19.png](img_19.png)
@@ -3897,5 +4168,85 @@ docker exec -it  mysql bash
 mysql -uroot -p123456
 GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '123456' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
+```
+## Flask 表单form.validate_on_submit()总是false
+```text
+错误信息：
+没有明显的错误信息
+
+错误原因：
+html中表单的地方没写{{ form.csrf_token }}
+
+解决方法：
+在HTML <form></form>里加上{{ form.csrf_token }}就好
+
+```
+## jinja2.exceptions.UndefinedError: 'form' is undefined
+```text
+错误信息：
+jinja2.exceptions.UndefinedError: 'form' is undefined
+
+错误原因：
+我认为是login.html中引入base.html {% extends 'base.html' %}，但base.html中不存在form.username导致的
+实际是：
+视图函数auth.py中有也要将from传递给前端：return render_template('login.html', form=form)
+
+解决方法：
+视图函数auth.py中有也要将from传递给前端：return render_template('login.html', form=form)
+```
+
+## sqlalchemy.exc.IntegrityError
+```text
+错误信息：
+sqlalchemy.exc.IntegrityError: (MySQLdb.IntegrityError) (1062, "Duplicate entry 'guest' for key 'username'")
+[SQL: INSERT INTO user (add_date, pub_date, username, password, avatar, is_super_user, is_active, is_staff) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)]
+[parameters: (datetime.datetime(2022, 11, 14, 15, 17, 27, 504788), datetime.datetime(2022, 11, 14, 15, 17, 27, 504788), 'guest', 'pbkdf2:sha256:260000$Sgn0cpvmWNMx015o$aef1506e758f19b0bbc23f6570871cf126a1964ae4229882c5435a6847d67bce', None, 0, 1, 0)]
+(Background on this error at: https://sqlalche.me/e/14/gkpj)
+
+错误原因：
+重复注册相同name的用户，就会出现此问题；第一次注册name的用户是可以的。
+
+
+解决方法：
+没能够复现，没有找到解决方法，暂时搁置
+```
+
+## RuntimeError: Either 'SQLALCHEMY_DATABASE_URI' or 'SQLALCHEMY_BINDS' must be set.
+```text
+错误信息：
+RuntimeError: Either 'SQLALCHEMY_DATABASE_URI' or 'SQLALCHEMY_BINDS' must be set.
+
+错误原因：
+在工厂函数中没有找到配置文件路径导致。
+
+解决方法：
+    # 这里做了判断是否运行时传入了测试配置
+    if test_config is None:
+        CONFIG_PATH = BASE_DIR / 'RealProject/settings.py'
+        app.config.from_pyfile(CONFIG_PATH, silent=True)
+```
+
+## TypeError: paginate() takes 1 positional argument but 2 positional arguments 
+```text
+错误信息：
+TypeError: paginate() takes 1 positional argument but 2 positional arguments (and 2 keyword-only arguments) were given
+
+错误原因：
+参数应该一一对应：pagination = Post.query.order_by(-Post.add_date).paginate(page=page, per_page=9, error_out=False)
+通过源码得知：
+    def paginate(
+        self,
+        *,
+        page: int | None = None,
+        per_page: int | None = None,
+        max_per_page: int | None = None,
+        error_out: bool = True,
+        count: bool = True,
+    ) -> Pagination:
+解决方法：
+pagination = Post.query.order_by(-Post.add_date).paginate(page, per_page=9, error_out=False)
+改为
+pagination = Post.query.order_by(-Post.add_date).paginate(page=page, per_page=9, error_out=False)
+
 ```
 
