@@ -4,11 +4,22 @@
 
 {% block auth_form %}
 <form action="" method="post" style="margin-top: 40%;" class="box">
-    {{ form.csrf_token }}
     <div class=" has-text-centered mb-3">
         <p class=" subtitle">注册</p>
         <h1 class="title">FlaskBlog</h1>
     </div>
+    {{ form.csrf_token }}
+    <!-- 表单验证 -->
+    {% if form.username.errors %}
+    <b-message type="is-danger">
+      <ul class="errors">
+        {% for error in form.username.errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    </b-message>
+    {% endif %}
+
      <!-- 消息闪现 -->
      {% with messages = get_flashed_messages() %}
      <b-message type="is-danger">
@@ -24,7 +35,7 @@
 
     <div class="field">
         <p class="control has-icons-left has-icons-right">
-            <input class="input" type="text" name="username" id="id_username" maxlength="128" placeholder="Username">
+            {{ form.username(class='input', placeholder='Username') }}
             <span class="icon is-small is-left">
                 <i class="fas fa-envelope"></i>
             </span>
@@ -35,7 +46,7 @@
     </div>
     <div class="field">
         <p class="control has-icons-left">
-            <input class="input" type="password" name="password" id="id_password" maxlength="320" minlength="6" placeholder="Password">
+            {{ form.password(class='input', placeholder='Password') }}
             <span class="icon is-small is-left">
                 <i class="fas fa-lock"></i>
             </span>
@@ -43,7 +54,7 @@
     </div>
     <div class="field">
         <p class="control has-icons-left">
-            <input class="input" type="password" name="password1" id="id_password1" maxlength="320" minlength="6" placeholder="Password1">
+            {{ form.password1(class='input', placeholder='Password1') }}
             <span class="icon is-small is-left">
                 <i class="fas fa-lock"></i>
             </span>

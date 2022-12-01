@@ -1,4 +1,4 @@
-{% extends 'index.html' %}
+{% extends 'base.html' %}
 
 {% block title %}
 {{ g.user['username'] }}-个人中心
@@ -11,6 +11,7 @@
     <div class="column is-2">
         <div class="card is-shadowless" style="border-right:solid 1px #eee">
             <div class="card-content">
+                {% block menus %}
                 <aside class="menu">
                     <p class="menu-label">
                         仪表板
@@ -25,30 +26,39 @@
                     </p>
                     <ul class="menu-list">
                         <li><a class="{% if 'category' in request.path %}is-active{% endif %}"
-                                href="{{ url_for('admin.category') }}">分类管理</a></li>
+                               href="{{ url_for('admin.category') }}">分类管理</a></li>
                     </ul>
                     <p class="menu-label">
                         文章管理
                     </p>
                     <ul class="menu-list">
                         <li><a class="{% if 'article' in request.path %}is-active{% endif %}"
-                                href="{{ url_for('admin.article') }}">文章管理</a></li>
-                    </ul>
-                    <ul class="menu-list">
+                               href="{{ url_for('admin.article') }}">文章管理</a></li>
                         <li><a class="{% if 'tag' in request.path %}is-active{% endif %}"
-                                href="{{ url_for('admin.tag') }}">标签管理</a></li>
+                               href="{{ url_for('admin.tag') }}">文章标签</a></li>
                     </ul>
                     <p class="menu-label">
                         用户管理
                     </p>
                     <ul class="menu-list">
                         <li><a class="{% if 'user' in request.path %}is-active{% endif %}"
-                                href="{{ url_for('admin.user') }}">用户管理</a></li>
+                                href="{{ url_for('admin.user') }}">用户管理</a>
+                        </li>
                     </ul>
-<!--                    <ul class="menu-list">-->
-<!--                        <li><a>修改密码</a></li>-->
-<!--                    </ul>-->
+                    <p class="menu-label">
+                        <span class="icon"><i class="mdi mdi-cog-outline"></i></span>
+                        设置
+                    </p>
+                    <ul class="menu-list">
+                        <li><a class="{% if 'banner' in request.path %}is-active{% endif %}"
+                            href="{{ url_for('admin.banner') }}">
+                            <span class="icon"><i class="mdi mdi-image-sync-outline"></i></span>
+                            轮播图管理
+                        </a>
+                    </li>
+                    </ul>
                 </aside>
+                {% endblock menus %}
             </div>
         </div>
     </div>
@@ -58,7 +68,7 @@
             <div class="tile is-parent">
                 <article class="tile is-child notification is-info is-light">
                     <div class="content">
-                        <p class="title">100</p>
+                        <p class="title">{{ post_count }}</p>
                         <p class="subtitle">文章数</p>
                         <div class="content">
                             <!-- Content -->
@@ -69,7 +79,7 @@
             <div class="tile is-parent">
                 <article class="tile is-child notification is-success is-light">
                     <div class="content">
-                        <p class="title">50</p>
+                        <p class="title">{{ user_count }}</p>
                         <p class="subtitle">用户数</p>
                         <div class="content">
                             <!-- Content -->
@@ -80,7 +90,7 @@
             <div class="tile is-parent">
                 <article class="tile is-child notification is-warning is-light">
                     <div class="content">
-                        <p class="title">150</p>
+                        <p class="title">0</p>
                         <p class="subtitle">评论数</p>
                         <div class="content">
                             <!-- Content -->

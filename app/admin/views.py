@@ -1,40 +1,36 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-"""
-@FileName: views.py
-@Time    : 2022/8/21 14:57
-@Author  : 热气球
-@Software: PyCharm
-@Version : 1.0
-@Contact : 2573514647@qq.com
-@Des     : 
-"""
+from ctypes import pointer
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, render_template, request,
+    flash, redirect, url_for
 )
-from flask_sqlalchemy import Pagination
+from werkzeug.security import check_password_hash, generate_password_hash
+from RealProject import db
+from app.admin.forms import CategoryCreateForm, PostForm, TagForm, CreateUserForm
+from app.admin.models import Banner
+from app.admin.utils import upload_file_path
+from app.auth.models.auth import User
 from app.auth.views.auth import login_required
 from app.blog.models import Category, Post, Tag
-from app.auth.models.auth import User
-from app.admin.forms import CategoryCreateForm, PostForm, TagForm, CreateUserForm
-from RealProject import db
-from werkzeug.security import check_password_hash, generate_password_hash
 
-bp = Blueprint('admin', __name__, url_prefix='/admin', template_folder='templates', static_folder='static')
+bp = Blueprint('admin', __name__, url_prefix='/admin',
+               template_folder='templates', static_folder='static')
 
 
 @bp.route('/')
 @login_required
 def index():
-    return render_template('admin/index.html')
+    # 主页视图
+    post_count = Post.query.count()
+    user_count = User.query.count()
+    return render_template('admin/index.html', post_count=post_count, user_count=user_count)
 
 
 @bp.route('/category')
 @login_required
 def category():
-    page = request.args.get('page', 1, int)
-    pagination = Category.query.order_by(-Category.add_date).paginate(page, per_page=5, error_out=False)
-    # print([i for i in pageination.iter_pages()])
+    # 查看分类
+    page = request.args.get('page', 1, type=int)
+    pagination = Category.query.order_by(-Category.add_date).paginate(page=page, per_page=10, error_out=False)
     category_list = pagination.items
     return render_template('admin/category.html', category_list=category_list, pagination=pagination)
 
@@ -69,15 +65,17 @@ def category_edit(cate_id):
     return render_template('admin/category_form.html', form=form)
 
 
-@bp.route('/category/delete/<int:cate_id>', methods=['GET', 'POST'])
+@bp.route('/category/delete/<int:cate_id>')
 @login_required
 def category_del(cate_id):
-    # 增加分类
-    category = Category.query.get(cate_id)
-    if category:
-        db.session.delete(category)
+    cate = Category.query.get(cate_id)
+    if cate:
+        # 级联删除
+        posts = Post.query.filter(Post.category_id == cate.id)
+        print(posts.all())
+        db.session.delete(cate)
         db.session.commit()
-        flash(f'{category.name}分类删除成功')
+        flash(f'{cate.name}分类删除成功')
         return redirect(url_for('admin.category'))
 
 
@@ -86,7 +84,7 @@ def category_del(cate_id):
 def article():
     # 查看文章列表
     page = request.args.get('page', 1, type=int)
-    pagination = Post.query.order_by(-Post.add_date).paginate(page, per_page=10, error_out=False)
+    pagination = Post.query.order_by(-Post.add_date).paginate(page=page, per_page=10, error_out=False)
     post_list = pagination.items
     return render_template('admin/article.html', post_list=post_list, pagination=pagination)
 
@@ -122,12 +120,9 @@ def article_edit(post_id):
     post = Post.query.get(post_id)
     tags = [tag.id for tag in post.tags]
     form = PostForm(
-        title=post.title,
-        desc=post.desc,
-        category_id=post.category.id,
-        has_type=post.has_type.value,
-        content=post.content,
-        tags=tags
+        title=post.title, desc=post.desc,
+        category_id=post.category.id, has_type=post.has_type.value,
+        content=post.content, tags=tags
     )
 
     form.category_id.choices = [(v.id, v.name) for v in Category.query.all()]
@@ -164,7 +159,7 @@ def article_del(post_id):
 def tag():
     # 查看标签列表
     page = request.args.get('page', 1, type=int)
-    pagination = Tag.query.order_by(-Tag.add_date).paginate(page, per_page=10, error_out=False)
+    pagination = Tag.query.order_by(-Tag.add_date).paginate(page=page, per_page=10, error_out=False)
     tag_list = pagination.items
     return render_template('admin/tag.html', tag_list=tag_list, pagination=pagination)
 
@@ -213,9 +208,9 @@ def tag_del(tag_id):
 @bp.route('/user')
 @login_required
 def user():
-    # 查看用户列表
+    # 查看文章列表
     page = request.args.get('page', 1, type=int)
-    pagination = User.query.order_by(-User.add_date).paginate(page, per_page=10, error_out=False)
+    pagination = User.query.order_by(-User.add_date).paginate(page=page, per_page=10, error_out=False)
     user_list = pagination.items
     return render_template('admin/user.html', user_list=user_list, pagination=pagination)
 
@@ -223,11 +218,11 @@ def user():
 @bp.route('/user/add', methods=['GET', 'POST'])
 @login_required
 def user_add():
-    # 添加用户
+    # 查看文章列表
     # https://flask-wtf.readthedocs.io/en/1.0.x/form/#file-uploads
-    from .utils import upload_file_path
     form = CreateUserForm()
     if form.validate_on_submit():
+        from .utils import upload_file_path
         f = form.avatar.data
         avatar_path, filename = upload_file_path('avatar', f)
         f.save(avatar_path)
@@ -241,6 +236,7 @@ def user_add():
         )
         db.session.add(user)
         db.session.commit()
+        flash(f'{form.username.data}添加成功！')
         return redirect(url_for('admin.user'))
     return render_template('admin/user_form.html', form=form)
 
@@ -310,10 +306,75 @@ def upload():
                 'code': 'err',
                 'message': '文件超过限制2048000字节',
             }
-        from .utils import upload_file_path
         upload_path, filename = upload_file_path('upload', f)
         f.save(upload_path)
         return {
             'code': 'ok',
             'url': f'/admin/static/upload/{filename}'
         }
+
+
+@bp.route('/banner')
+@login_required
+def banner():
+    # banner列表
+    from .models import Banner
+    banners = Banner.query.all()
+    return render_template('admin/banner.html', banners=banners)
+
+
+@bp.route('/banner/add', methods=['GET', 'POST'])
+@login_required
+def banner_add():
+    # banner添加
+    from .forms import BannerForm
+    form = BannerForm()
+    if form.validate_on_submit():
+        from .utils import upload_file_path
+        f = form.img.data
+        img_path, filename = upload_file_path('banner', f)
+        f.save(img_path)
+        banner = Banner(
+            img=f'banner/{filename}',
+            desc=form.desc.data,
+            url=form.url.data
+        )
+        db.session.add(banner)
+        db.session.commit()
+        flash('banner图新增成功')
+        return redirect(url_for('admin.banner'))
+    return render_template('admin/banner_form.html', form=form)
+
+
+@bp.route('/banner/edit/<int:banner_id>', methods=['GET', 'POST'])
+@login_required
+def banner_edit(banner_id):
+    # banner修改
+    from .forms import BannerForm
+    banner = Banner.query.get(banner_id)
+    form = BannerForm(img=banner.img, desc=banner.desc, url=banner.url)
+    if form.validate_on_submit():
+        f = form.img.data
+        if banner.img == f:
+            banner.img = banner.img
+        else:
+            from .utils import upload_file_path
+            img_path, filename = upload_file_path('banner', f)
+            f.save(img_path)
+            banner.img = f'banner/{filename}'
+        banner.desc = form.desc.data
+        banner.url = form.url.data
+        return redirect(url_for('admin.banner'))
+    return render_template('admin/banner_form.html', form=form, banner=banner)
+
+
+@bp.route('/banner/del/<int:banner_id>', methods=['GET', 'POST'])
+@login_required
+def banner_del(banner_id):
+    # banner列表
+    banner = Banner.query.get(banner_id)
+    if banner:
+        db.session.delete(banner)
+        db.session.commit()
+        flash(f'{banner.img}删除成功')
+        return redirect(url_for('admin.banner'))

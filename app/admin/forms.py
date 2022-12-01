@@ -1,19 +1,9 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-"""
-@FileName: forms.py
-@Time    : 2022/8/21 14:58
-@Author  : 热气球
-@Software: PyCharm
-@Version : 1.0
-@Contact : 2573514647@qq.com
-@Des     : 
-"""
 from flask_wtf import FlaskForm
-from wtforms import StringField, RadioField, SelectField, TextAreaField, SelectMultipleField, PasswordField, BooleanField
-from wtforms.validators import DataRequired, Length
-from app.blog.models import PostPublishType
+from wtforms import StringField, RadioField, SelectField, TextAreaField, SelectMultipleField, PasswordField, \
+    BooleanField, URLField
+from wtforms.validators import DataRequired, Length, URL
 from flask_wtf.file import FileField, FileSize, FileAllowed
+from app.blog.models import PostPublishType
 
 
 class CategoryCreateForm(FlaskForm):
@@ -80,3 +70,21 @@ class CreateUserForm(FlaskForm):
     is_super_user = BooleanField("是否为管理员")
     is_active = BooleanField("是否活跃", default=True)
     is_staff = BooleanField("是否锁定")
+
+
+class BannerForm(FlaskForm):
+    # banner表单
+    img = FileField("Banner图", validators=[
+        # FileRequired(),
+        FileAllowed(['jpg', 'png', 'gif'], message="仅支持jpg/png/gif格式"),
+        FileSize(max_size=3 * 1024 * 1000, message="不能大于3M")],
+                    description="大小不超过3M，仅支持jpg/png/gif格式，不选择则代表不修改, 尺寸比例：3:1")
+
+    desc = StringField('描述', validators=[
+        # DataRequired(message="不能为空"),
+        Length(max=200, message="不符合字数要求！")
+    ])
+
+    url = URLField("Url", validators=[
+        URL(require_tld=False, message="请输入正确的url"),
+        Length(max=300, message="不符合字数要求！")])

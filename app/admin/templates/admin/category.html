@@ -1,4 +1,4 @@
-{% extends 'admin/index.html' %}
+{% extends 'admin/index.html' %}    
 
 {% block member %}
 <div class="is-block">
@@ -50,7 +50,7 @@
         </thead>
         <tbody>
 
-            {% for cate in category_list %}
+            {% for cate in category_list %}       
             <tr>
                 <td>{{ cate.id }}</td>
                 <td>{{ cate.name }}</td>
@@ -66,7 +66,7 @@
                         </a>
                         <a href="{{ url_for('admin.category_del', cate_id=cate.id) }}" class="tag is-danger is-light">
                             <span class="icon">
-                                 <i class="mdi mdi-trash-can-outline"></i>
+                                <i class="mdi mdi-trash-can-outline"></i>
                             </span>
                             删除
                         </a>
@@ -86,9 +86,9 @@
     <a href="{{ url_for('admin.category') }}?page={{ pagination.next_num }}" class="pagination-next">Next page</a>
     {% endif %}
 
-    <ul class="pagination-list">
+    <ul class="pagination-list">        
         {% for page in pagination.iter_pages() %}
-            {% if page %}
+            {% if page %} 
                 {% if page != pagination.page %}
                 <li>
                     <a href="{{ url_for('admin.category') }}?page={{ page }}" class="pagination-link" aria-label="Page 1" aria-current="page">{{ page }}</a>

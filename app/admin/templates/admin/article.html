@@ -1,4 +1,4 @@
-{% extends 'admin/index.html' %}
+{% extends 'admin/index.html' %}    
 
 {% block member %}
 <div class="is-block">
@@ -50,7 +50,7 @@
         </thead>
         <tbody>
 
-            {% for post in post_list %}
+            {% for post in post_list %}   
             <tr>
                 <td>{{ post.id }}</td>
                 <td>{{ post.title }}</td>
@@ -83,15 +83,15 @@
 
 <nav class="pagination is-small" role="navigation" aria-label="pagination">
     {% if pagination.has_prev %}
-    <a href="{{ url_for('admin.article') }}?page={{ pagination.prev_num }}" class="pagination-previous" title="This is the first page">Previous</a>
+    <a href="{{ url_for('admin.article') }}?page={{ pagination.prev_num }}" class="pagination-previous" title="This is the first page">上一页</a>
     {% endif %}
     {% if pagination.has_next %}
-    <a href="{{ url_for('admin.article') }}?page={{ pagination.next_num }}" class="pagination-next">Next page</a>
+    <a href="{{ url_for('admin.article') }}?page={{ pagination.next_num }}" class="pagination-next">下一页</a>
     {% endif %}
 
-    <ul class="pagination-list">
+    <ul class="pagination-list">        
         {% for page in pagination.iter_pages() %}
-            {% if page %}
+            {% if page %} 
                 {% if page != pagination.page %}
                 <li>
                     <a href="{{ url_for('admin.article') }}?page={{ page }}" class="pagination-link" aria-label="Page 1" aria-current="page">{{ page }}</a>

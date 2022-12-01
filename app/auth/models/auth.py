@@ -1,33 +1,24 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-"""
-@FileName: auth.py.py
-@Time    : 2022/8/16 19:07
-@Author  : 热气球
-@Software: PyCharm
-@Version : 1.0
-@Contact : 2573514647@qq.com
-@Des     : 
-"""
 from datetime import datetime
 from RealProject import db
 
 
 class BaseModel(db.Model):
-    """ 基类模型 """
+    """基类模型
+    """
     __abstract__ = True
 
-    add_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    pub_date = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    add_date = db.Column(db.DateTime, nullable=False, default=datetime.now, )  # 创建时间
+    pub_date = db.Column(db.DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)  # 更新时间
 
 
 class User(BaseModel):
-    """ 用户模型 """
+    """用户模型
+    """
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(128), unique=True, nullable=False)
     password = db.Column(db.String(320), nullable=False)
     avatar = db.Column(db.String(200), nullable=True)
-    is_super_user = db.Column(db.Boolean, nullable=True, default=False)  # 超级管理员表示
+    is_super_user = db.Column(db.Boolean, nullable=True, default=False)  # 超级管理员标识
     is_active = db.Column(db.Boolean, nullable=True, default=True)  # 是否为活跃用户
     is_staff = db.Column(db.Boolean, nullable=True, default=False)  # 是否允许登录后台
 

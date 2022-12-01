@@ -7,12 +7,6 @@
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 {% endblock extra_head_style %}
 
-{% block extra_foot_script %}
-<!-- Include the Quill library -->
-<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-{% endblock extra_foot_script %}
-
-
 {% block table_content %}
     <form action="" method="post" class="mt-4">
         {{ form.csrf_token }}
@@ -20,15 +14,6 @@
             {{ form.title.label(class='label') }}
             <div class="control">
                 {{ form.title(class='input', placeholder='标题') }}
-            </div>
-        </div>
-        <div class="field">
-            {{ form.content.label(class='label') }}
-            <div class="control">
-            {{ form.content(class='textarea', rows="10", placeholder='文章详情') }}
-            </div>
-            <!-- 富文本编辑器 -->
-            <div id="editor" style="height: 500px;">
             </div>
         </div>
         <div class="field">
@@ -45,6 +30,15 @@
                     {{ form.category_id }}
                 </div>
             </div>
+        </div>
+
+        <div class="field">
+            {{ form.content.label(class='label') }}
+            <div class="control">
+                {{ form.content(class='textarea', rows="10", placeholder='文章详情') }}
+            </div>
+            <!-- 富文本编辑器 -->
+            <div id="editor" style="height: 500px;"></div>
         </div>
 
         <div class="field">
@@ -71,6 +65,7 @@
                 </div>
             </div>
         </div>
+
         <div class="is-block">
             <div class="box has-background-light is-shadowless level">
                 <button class=" is-danger button level-left">删除</button>
@@ -80,9 +75,15 @@
                 </div>
             </div>
         </div>
-
     </form>
 {% endblock table_content %}
+
+
+{% block extra_foot_script %}
+<!-- Include the Quill library -->
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+{% endblock extra_foot_script %}
+
 
 {% block vue_script %}
 <script>
@@ -128,7 +129,7 @@
     // 回显内容
     quill.pasteHTML(content.value)
 
-    // 隐藏表单
+     // 隐藏表单
     content.setAttribute('style', 'display:none')
 
     // 上传图片方法
@@ -168,12 +169,12 @@
             });
             this.container.appendChild(fileInput);
         }
+        // 绑定点击事件
         fileInput.click();
     }
 
     // 上传图片
     var toolbar = quill.getModule('toolbar');
     toolbar.addHandler('image', showImageUI);
-
 </script>
 {% endblock vue_script %}

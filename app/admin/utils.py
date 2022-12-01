@@ -1,15 +1,3 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-"""
-@FileName: utils.py.py
-@Time    : 2022/9/4 14:53
-@Author  : 热气球
-@Software: PyCharm
-@Version : 1.0
-@Contact : 2573514647@qq.com
-@Des     : 
-"""
-
 import os
 import uuid
 from RealProject.settings import BASE_DIR
