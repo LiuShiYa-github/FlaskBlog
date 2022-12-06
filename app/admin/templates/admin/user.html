@@ -1,0 +1,151 @@
+{% extends 'admin/index.html' %}    
+
+{% block member %}
+<div class="is-block">
+    <div class=" is-pulled-left">
+        <h1 class=" is-size-4">
+            <span class="icon">
+                <i class="mdi mdi-tag-outline"></i>
+            </span>
+            用户管理
+        </h1>
+    </div>
+
+    {% block button %}
+    <div class=" is-pulled-right">
+        <a href="{{ url_for('admin.user_add') }}" class=" button is-primary is-light">
+            <span class="icon"><i class="mdi mdi-plus-thick"></i></span>
+            <span>添加用户</span>
+        </a>
+    </div>
+    {% endblock button %}
+    <div class="is-clearfix"></div>
+    <div class=" dropdown-divider"></div>
+
+    <!-- 消息闪现 -->
+    {% with messages = get_flashed_messages() %}
+    <b-message type="is-success">
+      {% if messages %}
+      <ul class=flashes>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </b-message>
+    {% endwith %}
+</div>
+
+{% block table_content %}
+<div class="table-container">
+    <table class="table is-fullwidth is-hoverable is-striped">
+        <thead>
+            <tr>
+              <th>ID</th>
+              <th>头像</th>
+              <th>用户名</th>
+              <th>管理员</th>
+              <th>是否活跃</th>
+              <th>是否锁定</th>
+              <th>添加日期</th>
+              <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in user_list %}       
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>
+                    {% if user.avatar %}
+                    <figure class="image is-48x48">
+                        <img class="is-rounded" src="/admin/static/{{ user.avatar }}" alt="{{ user.username }}">
+                    </figure>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>{{ user.username }}</td>
+                <td>
+                    {% if user.is_super_user %}
+                        <span class="icon has-text-success-dark">
+                            <i class="mdi mdi-check"></i>
+                        </span>
+                    {% else %}
+                        <span class="icon has-text-danger-dark">
+                            <i class="mdi mdi-close"></i>
+                        </span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if user.is_active %}
+                        <span class="icon has-text-success-dark">
+                            <i class="mdi mdi-check"></i>
+                        </span>
+                    {% else %}
+                        <span class="icon has-text-danger-dark">
+                            <i class="mdi mdi-close"></i>
+                        </span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if user.is_staff %}
+                        <span class="icon has-text-danger-dark">
+                            <i class="mdi mdi-lock-outline"></i>
+                        </span>
+                    {% else %}
+                        <span class="icon has-text-success-dark">
+                            <i class="mdi mdi-lock-open-variant-outline"></i>
+                        </span>
+                    {% endif %}
+                </td>
+                <td>{{ user.add_date }}</td>
+                <td>
+                    <div class="tags">
+                        <a href="{{ url_for('admin.user_edit', user_id=user.id) }}" class="tag is-success is-light">
+                            <span class="icon">
+                                <i class="mdi mdi-square-edit-outline"></i>
+                            </span>
+                            编辑
+                        </a>
+                        <a href="{{ url_for('admin.user_del', user_id=user.id) }}" class="tag is-danger is-light">
+                            <span class="icon">
+                                <i class="mdi mdi-trash-can-outline"></i>
+                            </span>
+                            删除
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<nav class="pagination is-small" role="navigation" aria-label="pagination">
+    {% if pagination.has_prev %}
+    <a href="{{ url_for('admin.user') }}?page={{ pagination.prev_num }}" class="pagination-previous" title="This is the first page">Previous</a>
+    {% endif %}
+    {% if pagination.has_next %}
+    <a href="{{ url_for('admin.user') }}?page={{ pagination.next_num }}" class="pagination-next">Next page</a>
+    {% endif %}
+
+    <ul class="pagination-list">        
+        {% for page in pagination.iter_pages() %}
+            {% if page %} 
+                {% if page != pagination.page %}
+                <li>
+                    <a href="{{ url_for('admin.user') }}?page={{ page }}" class="pagination-link" aria-label="Page 1" aria-current="page">{{ page }}</a>
+                </li>
+                {% else %}
+                <li>
+                    <a class="pagination-link is-current" aria-label="Page 1" aria-current="page">{{ page }}</a>
+                </li>
+                {% endif %}
+            {% else %}
+                <span class=pagination-ellipsis>&hellip;</span>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</nav>
+{% endblock table_content %}
+{% endblock member %}
