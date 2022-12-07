@@ -23,18 +23,6 @@
 * banner轮播图管理
 
 
-
-
-
-## 开发文档
-<details>
-<summary>👉开发文档</summary>
-
-开发过程&遇到的问题&现存bug都在[开发文档](https://github.com/LiuShiYa-github/FlaskBlog/tree/master/Development-Documentation) 中记录
-
-</details>
-
-
 ## 快速体验
 <details>
 <summary>👉快速体验</summary>
@@ -106,5 +94,11 @@ banner轮播图管理
 </details>
 
 
+## 开发文档
+<details>
+<summary>👉开发文档</summary>
 
+开发过程&遇到的问题&现存bug都在[开发文档](https://github.com/LiuShiYa-github/FlaskBlog/tree/master/Development-Documentation) 中记录
+
+</details>
 
