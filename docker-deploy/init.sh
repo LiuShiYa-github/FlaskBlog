@@ -2,7 +2,7 @@
 # 启动nginx
 nginx
 # 创建数据库
-msyql -uroot -p123456 -e "create database flaskdb"
+mysql -uroot -p123456 -e "create database flaskdb"
 # 创建表
 flask db init
 flask db migrate
