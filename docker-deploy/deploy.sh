@@ -7,7 +7,8 @@ function deploy() {
     docker network create --subnet=172.32.0.0/24 flaskblog_net
     docker-compose -f docker-compose_mysql.yaml up -d
     while [ 0 -eq "$(netstat  -ntpl|grep -c 3306)" ]; do
-      sleep 1
+      echo "Wait for the MySQL server to finish starting"
+      sleep 3
     done
     docker exec -it mysql mysql -uroot -p123456 -e "use mysql; GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '123456' ; flush privileges; create database flaskdb;"
     docker-compose -f docker-compose_flaskblog.yaml up -d
