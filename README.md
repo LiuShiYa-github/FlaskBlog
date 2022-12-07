@@ -28,12 +28,11 @@
 <summary>👉快速体验</summary>
 采用docker-compose+shell的方式只需两步就可以部署完成，利于大家快速体验。
 
+**前提条件：** 
 
-前提条件： 
+①机器可以连接外网； 
 
-机器可以连接外网； 
-
-安装docker和docker-compose； 
+②安装docker和docker-compose； 
 
 没安装可以参照[install_docker.sh](https://github.com/LiuShiYa-github/ShellScript/blob/main/install_docker.sh)
 
