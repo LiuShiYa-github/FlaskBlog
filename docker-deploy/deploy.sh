@@ -5,8 +5,8 @@ function deploy() {
     chmod +x init.sh
     docker build -t  flaskblog:v1.0  ./
     docker network create --subnet=172.32.0.0/24 flaskblog_net
-    docker-compose -f docker-compose_mysql.yaml up -d
     while [ 0 -eq "$(netstat  -ntpl|grep -c 3306)" ]; do
+      docker-compose -f docker-compose_mysql.yaml up -d
       echo "Wait for the MySQL server to finish starting"
       sleep 3
     done
@@ -18,7 +18,7 @@ function get_ip() {
     # shellcheck disable=SC2010
     network_name=$(ls /etc/sysconfig/network-scripts/ifcfg-*|grep -v lo|awk -F '/etc/sysconfig/network-scripts/ifcfg-' '{print $2}')
     network_ip=$(ifconfig "$network_name" | awk 'NR==2{print $2}')
-    echo "请使用浏览器访问 http://$network_ip"
+    echo "Please use your browser to access http://$network_ip"
 }
 function main() {
     deploy
