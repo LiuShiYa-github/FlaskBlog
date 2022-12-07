@@ -5,7 +5,7 @@
 开发过程&遇到的问题&现存bug都在[开发文档](https://github.com/LiuShiYa-github/FlaskBlog/tree/master/Development-Documentation) 中记录
 ## 快速使用
 采用docker-compose+shell的方式只需三步就可以部署完成，利于大家快速体验。
-账户名密码：admin/admin
+
 
 前提条件： 
 
@@ -20,6 +20,7 @@
 ① git clone  https://github.com/LiuShiYa-github/FlaskBlog.git
 ② bash  FlaskBlog/docker-deploy/deploy.sh
 访问http://ipaddress
+账户名密码：admin/admin
 ```
 ![img_11.png](Development-Documentation/img_19.png)
 
