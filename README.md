@@ -4,8 +4,12 @@
 
 [开发文档](https://github.com/LiuShiYa-github/FlaskBlog/tree/master/Development-Documentation)
 ## 快速使用
-采用docker-compose+shell的方式只需两步就可以部署完成，利于大家快速体验。
+采用docker-compose+shell的方式只需三步就可以部署完成，利于大家快速体验。
 账户名密码：admin/admin
+
+前提条件： 机器可以连接外网； 
+
+安装docker和docker-compose； 没安装可以参照[install_docker.sh](https://github.com/LiuShiYa-github/ShellScript/blob/main/install_docker.sh)
 
 ```text
 ① git clone  https://github.com/LiuShiYa-github/FlaskBlog.git
