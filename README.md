@@ -2,7 +2,7 @@
 ## 简介
 本博客代码是基于[bilibili-up-轻编程](https://space.bilibili.com/432627585) 开发的blog基础上采用flask进行开发而成
 
-[开发文档](https://github.com/LiuShiYa-github/FlaskBlog/tree/master/Development-Documentation)
+开发过程以及遇到的问题，现存bug都在[开发文档](https://github.com/LiuShiYa-github/FlaskBlog/tree/master/Development-Documentation) 中记录
 ## 快速使用
 采用docker-compose+shell的方式只需三步就可以部署完成，利于大家快速体验。
 账户名密码：admin/admin
