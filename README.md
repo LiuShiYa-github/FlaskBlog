@@ -4,7 +4,7 @@
 
 开发过程&遇到的问题&现存bug都在[开发文档](https://github.com/LiuShiYa-github/FlaskBlog/tree/master/Development-Documentation) 中记录
 ## 快速体验
-采用docker-compose+shell的方式只需三步就可以部署完成，利于大家快速体验。
+采用docker-compose+shell的方式只需两步就可以部署完成，利于大家快速体验。
 
 
 前提条件： 
