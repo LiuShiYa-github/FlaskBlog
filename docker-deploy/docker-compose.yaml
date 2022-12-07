@@ -1,0 +1,36 @@
+version: '3'
+networks:
+  flaskblog_net:
+    external: true
+services:
+  mysql:
+    image: 'mysql/mysql-server:5.7'
+    restart: always
+    container_name: mysql
+    networks:
+      flaskblog_net:
+        ipv4_address: 172.32.0.2
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+    command:
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+      --explicit_defaults_for_timestamp=true
+      --lower_case_table_names=1
+      --max_allowed_packet=128M;
+    ports:
+      - "3306:3306"
+
+  flaskblog:
+    image: 'flaskblog:v1.0'
+    restart: always
+    container_name: flaskblog
+    networks:
+      flaskblog_net:
+        ipv4_address: 172.32.0.2
+    command: /bin/bash init.sh
+    ports:
+      - "80:80"
+    depends_on:
+      - mysql
