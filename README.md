@@ -15,6 +15,7 @@
 
 没安装可以参照[install_docker.sh](https://github.com/LiuShiYa-github/ShellScript/blob/main/install_docker.sh)
 
+**部署FlaskBlog**
 ```text
 ① git clone  https://github.com/LiuShiYa-github/FlaskBlog.git
 ② bash  FlaskBlog/docker-deploy/deploy.sh
