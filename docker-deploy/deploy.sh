@@ -12,4 +12,14 @@ function deploy() {
     sleep 3
     docker exec -it flaskblog flask createsuperuser --username admin --password admin
 }
-deploy
+function get_ip() {
+    # shellcheck disable=SC2010
+    network_name=$(ls /etc/sysconfig/network-scripts/ifcfg-*|grep -v lo|awk -F '/etc/sysconfig/network-scripts/ifcfg-' '{print $2}')
+    network_ip=$(ifconfig "$network_name" | awk 'NR==2{print $2}')
+    echo "请使用浏览器访问 http://$network_ip"
+}
+function main() {
+    deploy
+    get_ip
+}
+main
