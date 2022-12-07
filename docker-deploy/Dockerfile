@@ -6,7 +6,7 @@ ADD init.sh /nginx/
 WORKDIR /nginx/
 RUN useradd nginx -M -s /sbin/nologin \
     && ./configure  --prefix=/etc/nginx/ --sbin-path=/usr/local/bin/ --user=nginx --group=nginx   --with-http_ssl_module  --with-http_stub_status_module --conf-path=/etc/nginx/nginx.conf  \
-    && --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --pid-path=/var/run/nginx.pid  \
+    --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --pid-path=/var/run/nginx.pid  \
     && make && make install && pip install uwsgi && pip install -r requirements.txt
 ADD nginx.conf /etc/nginx/
 ADD config.ini /nginx/
