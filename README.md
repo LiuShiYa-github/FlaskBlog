@@ -3,13 +3,12 @@
 本博客代码是基于[bilibili-up-轻编程](https://space.bilibili.com/432627585) 开发的blog基础上采用flask进行开发而成
 
 ## 快速使用
-采用docker-compose+shell的方式只需三步就可以部署完成，利于大家快速体验。
+采用docker-compose+shell的方式只需两步就可以部署完成，利于大家快速体验。
 账户名密码：admin/admin
 
 ```text
 ① git clone  https://github.com/LiuShiYa-github/FlaskBlog.git
-② cd FlaskBlog/docker-deploy/
-③ bash deploy.sh
+② bash  FlaskBlog/docker-deploy/deploy.sh
 访问http://ipaddress
 ```
 ![img_11.png](Development-Documentation/img_19.png)
