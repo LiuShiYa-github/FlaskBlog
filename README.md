@@ -4,7 +4,9 @@
 
 ## 简介
 
-本博客代码是基于[bilibili-up-轻编程](https://space.bilibili.com/432627585) 开发的blog基础上采用flask进行开发而成
+本博客代码是跟随[bilibili-up-轻编程](https://space.bilibili.com/432627585) 原创开发的flaskblog学习成果，后续会在此基础上完善部分功能。
+
+请尊重原创，思路和大部分代码属于“轻编程”的视频教程，想要跟随学习可以关注他 [bilibili-up-轻编程](https://space.bilibili.com/432627585)
 
 涉及到的功能模块如下：
 
